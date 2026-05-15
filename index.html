@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Limbus Company — Meta Team Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a26;
+      --border: #2a2a3a;
+      --text: #e8e6f0;
+      --muted: #8b8899;
+      --accent: #c9a227;
+      --accent2: #8b5cf6;
+      --rupture: #e85d4c;
+      --bleed: #dc2626;
+      --sinking: #3b82f6;
+      --burn: #f97316;
+      --poise: #a78bfa;
+      --success: #22c55e;
+      --warn: #eab308;
+      --danger: #ef4444;
+      --card-ratio: 0.62;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(201, 162, 39, 0.06), transparent);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .header {
+      text-align: center;
+      padding: 2.5rem 1.5rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .header p {
+      color: var(--muted);
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .meta-banner {
+      max-width: 1100px;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .tier-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .tier-card h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .tier-s .tier-card h3 { color: #fbbf24; }
+    .tier-a .tier-card h3 { color: #a78bfa; }
+    .tier-b .tier-card h3 { color: var(--muted); }
+
+    .tier-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .tag-rupture { background: rgba(232, 93, 76, 0.2); color: var(--rupture); }
+    .tag-bleed { background: rgba(220, 38, 38, 0.2); color: #f87171; }
+    .tag-sinking { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .tag-burn { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+    .tag-poise { background: rgba(167, 139, 250, 0.2); color: var(--poise); }
+    .tag-other { background: rgba(139, 136, 153, 0.15); color: var(--muted); }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .team-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .team-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .team-title-wrap h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.25rem;
+      color: var(--text);
+    }
+
+    .team-tier {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    .tier-s-badge { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .tier-a-badge { background: rgba(167, 139, 250, 0.2); color: #a78bfa; }
+
+    .team-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      max-width: 600px;
+    }
+
+    .team-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.55rem 1.1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #a67c00);
+      color: #0a0a0f;
+    }
+
+    .btn-primary:hover { opacity: 0.9; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+    .identity-row {
+      display: flex;
+      gap: 0.75rem;
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    /* GLL-style identity card */
+    .identity-card {
+      flex: 0 0 148px;
+      width: 148px;
+      aspect-ratio: 2 / 3.15;
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid var(--border);
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      background: #0d0d14;
+    }
+
+    .identity-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .identity-card.swapped {
+      border-color: var(--accent2);
+    }
+
+    .identity-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .identity-card .card-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      background: linear-gradient(160deg, #2a2a3a 0%, #12121a 100%);
+    }
+
+    .card-rarity {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 3px;
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .rarity-000 { color: #f472b6; border: 1px solid #f472b6; }
+    .rarity-00 { color: #a78bfa; border: 1px solid #a78bfa; }
+    .rarity-0 { color: #60a5fa; border: 1px solid #60a5fa; }
+
+    /* Name bottom-left like GLL (gll-fun.com) */
+    .card-nameplate {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: auto;
+      max-width: 88%;
+      padding: 24px 10px 8px 8px;
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.5) 70%, transparent 100%);
+      pointer-events: none;
+      text-align: left;
+    }
+
+    .card-name {
+      font-size: 0.65rem;
+      font-weight: 700;
+      line-height: 1.15;
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 1);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-sinner {
+      font-size: 0.55rem;
+      color: #d4b84a;
+      margin-top: 3px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .card-swap-hint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.75);
+      color: var(--accent);
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .identity-card:hover .card-swap-hint { opacity: 1; }
+
+    .card-slot {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 20px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.75);
+      border-radius: 50%;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+
+    .analysis-panel {
+      margin: 0 1.5rem 1.25rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface2);
+      border-radius: 10px;
+      border-left: 4px solid var(--accent);
+      display: none;
+    }
+
+    .analysis-panel.visible { display: block; }
+
+    .score-bar-wrap {
+      margin: 0.75rem 0;
+    }
+
+    .score-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .score-bar {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+
+    .analysis-list {
+      list-style: none;
+      margin-top: 0.75rem;
+    }
+
+    .analysis-list li {
+      font-size: 0.85rem;
+      padding: 0.35rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+
+    .analysis-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.65rem;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .analysis-list .pro::before { background: var(--success); }
+    .analysis-list .con::before { background: var(--danger); }
+    .analysis-list .tip::before { background: var(--warn); }
+
+    .status-keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.75rem;
+    }
+
+    .footer-note {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .team-section.custom-team {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.2);
+    }
+
+    .tier-custom-badge {
+      background: rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+    }
+
+    .custom-name-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.4rem 0.65rem;
+      margin-top: 0.5rem;
+      width: min(280px, 100%);
+    }
+
+    .identity-card.empty-card {
+      border-style: dashed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      color: var(--muted);
+    }
+
+    .identity-card.empty-card .empty-plus {
+      font-size: 2rem;
+      color: var(--accent2);
+      line-height: 1;
+    }
+
+    .identity-card.empty-card .empty-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .identity-card.taken-sinner {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .modal-tabs {
+      display: flex;
+      gap: 0.35rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-tab {
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .modal-tab.active {
+      background: var(--accent);
+      color: #0a0a0f;
+      border-color: var(--accent);
+    }
+
+    .modal-search-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-search-row input {
+      flex: 1;
+      min-width: 140px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.65rem;
+    }
+
+    .icon-filter-block {
+      margin-bottom: 0.65rem;
+    }
+
+    .icon-filter-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+    }
+
+    .icon-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .icon-filter-btn {
+      width: 40px;
+      height: 40px;
+      padding: 4px;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    }
+
+    .icon-filter-btn:hover {
+      border-color: var(--muted);
+      transform: translateY(-1px);
+    }
+
+    .icon-filter-btn.active {
+      border-color: var(--accent);
+      background: rgba(201, 162, 39, 0.15);
+      box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.35);
+    }
+
+    .icon-filter-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .icon-filter-all {
+      font-size: 1.1rem;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .icon-filter-btn.active .icon-filter-all {
+      color: var(--accent);
+    }
+
+    .tierlist-filters-panel {
+      max-width: 1100px;
+      margin: 0 auto 1.25rem;
+      padding: 0 1.5rem;
+    }
+
+    .tierlist-filters-panel .modal-search-row {
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin: 0.75rem 0 0.5rem;
+      font-weight: 700;
+    }
+
+    .modal-section-title:first-child { margin-top: 0; }
+
+    .alt-card.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 1rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 1rem 1.5rem 1.5rem;
+      overflow-y: auto;
+    }
+
+    .alt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .alt-card {
+      cursor: pointer;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      transition: border-color 0.15s;
+    }
+
+    .alt-card:hover, .alt-card.selected {
+      border-color: var(--accent);
+    }
+
+    .alt-card .identity-card {
+      flex: none;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    .alt-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .loading-msg {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .loading-error { color: var(--danger); }
+
+    .main-nav {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0 1.5rem 1.25rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .main-nav-btn {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.55rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .main-nav-btn.active {
+      background: var(--accent);
+      color: #0a0a0f;
+      border-color: var(--accent);
+    }
+
+    .btn-upload { cursor: pointer; margin: 0; }
+    .btn-upload input { display: none; }
+
+    .analysis-screenshot {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      border: 1px solid var(--border);
+    }
+
+    .ocr-detected, .ocr-loading {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .gll-tier-section {
+      margin-bottom: 2rem;
+      border-left: 4px solid var(--tier-color, var(--accent));
+      padding-left: 1rem;
+    }
+
+    .gll-tier-heading {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: var(--tier-color, var(--accent));
+      margin-bottom: 0.75rem;
+    }
+
+    .gll-tier-count {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .tierlist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .tierlist-card .identity-card {
+      width: 100%;
+      flex: none;
+    }
+
+    #page-tierlist { max-width: 1100px; margin: 0 auto; padding: 0 0 2rem; }
+
+    @media (max-width: 600px) {
+      .identity-card { flex: 0 0 120px; width: 120px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1>Limbus Company Meta Builder</h1>
+    <p>Top status-effect teams · Swap identities · Analyze synergy — Updated May 2026</p>
+  </header>
+
+  <nav class="main-nav" aria-label="Main">
+    <button type="button" class="main-nav-btn active" data-page="teams">Teams</button>
+    <button type="button" class="main-nav-btn" data-page="tierlist">Tier List</button>
+  </nav>
+
+  <div id="page-tierlist" hidden>
+    <div class="tierlist-filters-panel">
+      <div class="modal-search-row">
+        <input type="search" id="tierlist-search" placeholder="Search identity name…">
+      </div>
+      <div class="icon-filter-block">
+        <div class="icon-filter-label">Sinners</div>
+        <div class="icon-filter-row" id="tierlist-sinner-filters"></div>
+      </div>
+      <div class="icon-filter-block">
+        <div class="icon-filter-label">Attack type</div>
+        <div class="icon-filter-row" id="tierlist-attack-filters"></div>
+      </div>
+      <div class="icon-filter-block">
+        <div class="icon-filter-label">Status</div>
+        <div class="icon-filter-row" id="tierlist-status-filters"></div>
+      </div>
+    </div>
+    <div id="tierlist-root"></div>
+  </div>
+
+  <div id="page-teams">
+  <div class="meta-banner">
+    <div class="tier-grid" id="meta-overview"></div>
+  </div>
+
+  <main id="teams-root"></main>
+  </div>
+
+  <div class="modal-overlay" id="swap-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Replace Identity</h3>
+        <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="alt-note" id="modal-note"></p>
+        <div class="modal-tabs">
+          <button type="button" class="modal-tab active" data-tab="recommended">Recommended</button>
+          <button type="button" class="modal-tab" data-tab="all">All Identities</button>
+        </div>
+        <div class="modal-search-row" id="modal-filters" hidden>
+          <input type="search" id="modal-search" placeholder="Search identity name…">
+          <div class="icon-filter-block">
+            <div class="icon-filter-label">Sinners</div>
+            <div class="icon-filter-row" id="modal-sinner-filters"></div>
+          </div>
+          <div class="icon-filter-block">
+            <div class="icon-filter-label">Attack type</div>
+            <div class="icon-filter-row" id="modal-attack-filters"></div>
+          </div>
+          <div class="icon-filter-block">
+            <div class="icon-filter-label">Status</div>
+            <div class="icon-filter-row" id="modal-status-filters"></div>
+          </div>
+        </div>
+        <div id="modal-recommended-wrap">
+          <div class="modal-section-title">Recommended for this slot</div>
+          <div class="alt-grid" id="alt-grid-recommended"></div>
+        </div>
+        <div id="modal-all-wrap" hidden>
+          <div class="modal-section-title" id="modal-all-title">Full identity database</div>
+          <div class="alt-grid" id="alt-grid-all"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>if (typeof bootApp === 'function') bootApp().catch(function(e){console.error(e)});</script>
+</body>
+</html>
